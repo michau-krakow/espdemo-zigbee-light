@@ -1,17 +1,19 @@
 name: CI build
 
-on:
-  push:
-    branches:
-      - "*"
+on: push
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     
+    strategy:
+      matrix:
+        idf_version: [ v5.5.1, release-v5.5, latest ]
+      fail-fast: false  # let other IDF versions continue
+
     container:
-      image: espressif/idf:v5.5.1
+      image: espressif/idf:${{ matrix.idf_version }}
     
     steps:
       - name: Checkout code
@@ -29,3 +31,11 @@ jobs:
           . ${IDF_PATH}/export.sh
           idf.py set-target esp32c6
           idf.py build
+ 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zigbee-light-${{ matrix.idf_version }}
+          path: |
+            build/*.bin
+            build/*.map
