@@ -9,6 +9,7 @@ jobs:
     
     strategy:
       matrix:
+        device: [ light ]
         idf_version: [ v5.5.1, release-v5.5, latest ]
       fail-fast: false  # let other IDF versions continue
 
@@ -28,6 +29,7 @@ jobs:
       - name: Build project
         shell: bash
         run: |
+          cd ${{ matrix.device }}
           . ${IDF_PATH}/export.sh
           idf.py set-target esp32c6
           idf.py build
@@ -35,7 +37,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: zigbee-light-${{ matrix.idf_version }}
+          name: zigbee-${{ matrix.device }}-${{ matrix.idf_version }}
           path: |
             build/*.bin
             build/*.map
